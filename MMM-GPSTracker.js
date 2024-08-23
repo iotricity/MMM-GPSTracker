@@ -80,16 +80,15 @@ Module.register("MMM-GPSTracker", {
     loadMap: function(loadordraw, trackdata) {
         
 		if(loadordraw === 0) {
-			var map = L.map('map').setView([this.config.latitude, this.config.longitude], this.config.zoom);
+			var map = L.map('map', { zoomControl: false }).setView([this.config.latitude, this.config.longitude], this.config.zoom);
 			this.objmap = map;							// Push object to module variable
 
 			var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-				zoomControl: false, 
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', 
 				zoomSnap: 0.25
 			}).addTo(map);
 			tileLayer.getContainer().style.filter = 'grayscale(' + this.config.grayscale + '%) brightness(' + this.config.brightness + '%) contrast(' + this.config.contrast + '%)';
-			
+
 			var circle = L.circleMarker([this.config.latitude, this.config.longitude], {
 				color: this.config.circlecolor,
 				opacity: 0.30,
