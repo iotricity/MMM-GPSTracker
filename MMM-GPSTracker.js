@@ -141,6 +141,11 @@ Module.register("MMM-GPSTracker", {
 				latlngs.push([json[i].XY.split(':')[0], json[i].XY.split(':')[1]]);
 			}
 
+			// If speed isn't updated for over 5 minutes, assume the speed is 0
+			if(Date.now() / 1000 - lastUpd >= 300) {
+				lastSpd = 0;
+			}
+		
 			var lastRad = lastSpd * 1.5;
 			if(lastRad > 100.0) {
 				lastRad = 100.0;
