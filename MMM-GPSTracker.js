@@ -108,7 +108,7 @@ Module.register("MMM-GPSTracker", {
 			var polyline = L.polyline(latlngs, {color: '' + this.config.trackcolor + '', weight: 4}).addTo(map);
 			this.objmappoly = polyline;					// Push object to module variable
 			
-			map.panTo([this.config.latitude, this.config.longitude]);
+			map.panTo([this.config.latitude, this.config.longitude], this.config.zoom);
 
 			this.loaded = true;
 		} else {
@@ -162,9 +162,9 @@ Module.register("MMM-GPSTracker", {
 			polylineshadow.setLatLngs(latlngs);
 			polyline.setLatLngs(latlngs);
 			circle.setLatLng([lastLat, lastLon]);
-			circle.setRadius(lastRad * 1.5);
+			circle.setRadius(lastRad * 1.2);
 			
-			map.flyTo([lastLat, lastLon]);
+			map.flyTo([lastLat, lastLon], zoomLevel);
 			
 			var date = new Date(lastUpd * 1000);
 			var day = "0" + date.getDate();
