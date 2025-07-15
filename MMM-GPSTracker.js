@@ -12,7 +12,7 @@ Module.register("MMM-GPSTracker", {
 		grayscale: 70,
 		brightness: 40,
 		contrast: 120,
-		guid: "9a36a4c8-c17e-47ee-a66d-b841f489d814"
+		guid: "9a78a4c8-c17f-49ee-a31d-b84cafe9d814"
     },
 
     start: function() {
