@@ -4,7 +4,7 @@ Module.register("MMM-GPSTracker", {
         longitude: 4.566211,
         zoom: 12,
 		trackcolor: "#ee9944",
-        circlecolor: "#33ee77",
+        	circlecolor: "#33ee77",
 		width: 400,
 		height: 300,
 		points: 50,
@@ -22,26 +22,28 @@ Module.register("MMM-GPSTracker", {
 		this.objmapcircle = null;
 		this.objmappoly = null;
 		this.objmappolyshadow = null;
-		
+		this.prevlat = 0.0;
+		this.prevlon = 0.0;
+
 		Log.log("Sending CONFIG to node_helper.js in " + this.name);
 		this.sendSocketNotification('CONFIG', this.config);
 	},
 
     getDom: function() {
-		
+
 		var container = document.createElement("div");
 		container.id = "container";
 		container.style.width = this.config.width + "px";
 		container.style.height = this.config.height + "px";
 		this.csscontainer = container;
-		
+
         var mapper = document.createElement("div");
         mapper.id = "map";
 		mapper.style.width = this.config.width + "px";
 		mapper.style.height = this.config.height + "px";
 		container.appendChild(mapper);
 		this.cssmap = mapper;
-		
+
         var infoblock = document.createElement("div");
         infoblock.id = "infoblock";
 		container.appendChild(infoblock);
@@ -69,7 +71,7 @@ Module.register("MMM-GPSTracker", {
             this.loadMap(0, "");
         }
 	},
-	
+
 	socketNotificationReceived: function(notification, payload, sender) {
 		if (notification === "TRACK") {
 			// Show trackdata on map and move map
@@ -78,13 +80,13 @@ Module.register("MMM-GPSTracker", {
     },
 
     loadMap: function(loadordraw, trackdata) {
-        
+
 		if(loadordraw === 0) {
 			var map = L.map('map', { zoomControl: false }).setView([this.config.latitude, this.config.longitude], this.config.zoom);
 			this.objmap = map;							// Push object to module variable
 
 			var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', 
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>', 
 				zoomSnap: 0.25
 			}).addTo(map);
 			tileLayer.getContainer().style.filter = 'grayscale(' + this.config.grayscale + '%) brightness(' + this.config.brightness + '%) contrast(' + this.config.contrast + '%)';
@@ -102,12 +104,12 @@ Module.register("MMM-GPSTracker", {
 				[52.4681767, 4.566211],
 				[52.4681768, 4.566212]
 			];
-			
+
 			var polylineshadow = L.polyline(latlngs, {color: '#101010', weight: 6}).addTo(map);	
 			this.objmappolyshadow = polylineshadow;		// Push object to module variable
 			var polyline = L.polyline(latlngs, {color: '' + this.config.trackcolor + '', weight: 4}).addTo(map);
 			this.objmappoly = polyline;					// Push object to module variable
-			
+
 			map.panTo([this.config.latitude, this.config.longitude], this.config.zoom);
 
 			this.loaded = true;
@@ -116,9 +118,9 @@ Module.register("MMM-GPSTracker", {
 			var circle = this.objmapcircle;
 			var polylineshadow = this.objmappolyshadow;
 			var polyline = this.objmappoly;
-			
+
 			var firstrun = 0;
-		
+
 			var json = trackdata;
 			var lastData = json[0].XY.split(':');
 			var lastLat = lastData[0];
@@ -145,7 +147,7 @@ Module.register("MMM-GPSTracker", {
 			if(Date.now() / 1000 - lastUpd >= 300) {
 				lastSpd = 0;
 			}
-		
+
 			var lastRad = lastSpd * 1.5;
 			if(lastRad > 100.0) {
 				lastRad = 100.0;
@@ -154,18 +156,27 @@ Module.register("MMM-GPSTracker", {
 				lastRad = 50.0;
 			}
 			var zoomLevel = 18.0 - Math.round(((18.0 - 15.0) / 50) * (lastRad - 50.0));
+			if(lastSpd == 0.0) {
+				zoomLevel = this.config.zoom;
+			}
 			if(firstrun == 0) {
 				firstrun = 1;
 				map.panTo([lastLat, lastLon]);
+				this.prevlat = lastLat;
+				this.prevlon = lastLon;
 			}
-			
+
 			polylineshadow.setLatLngs(latlngs);
 			polyline.setLatLngs(latlngs);
 			circle.setLatLng([lastLat, lastLon]);
 			circle.setRadius(lastRad * 1.2);
-			
-			map.flyTo([lastLat, lastLon], zoomLevel);
-			
+
+			if(lastLat != this.prevlat || lastLon != this.prevlon) {
+				map.flyTo([lastLat, lastLon], zoomLevel);
+				this.prevlat = lastLat;
+				this.prevlon = lastLon;
+			}
+
 			var date = new Date(lastUpd * 1000);
 			var day = "0" + date.getDate();
 			var month = "0" + (date.getMonth() + 1);

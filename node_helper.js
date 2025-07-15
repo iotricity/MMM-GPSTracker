@@ -14,7 +14,7 @@ module.exports = NodeHelper.create({
 
 	start: function() {
 		var self = this;
-		Log.info("Starting node helper for: " + this.name);
+//		Log.info("Starting node helper for: " + this.name);
 
 		this.config = null;
 	},
@@ -23,7 +23,7 @@ module.exports = NodeHelper.create({
 		var self = this;
 
 		if(getwhat === "TRACK") {
-		var geoURL = "https://offroaders.nl/geo/gsmmapper.php?guid=" + this.config.guid + "&points=" + this.config.points;
+		var geoURL = "http://172.16.0.36/geo/gsmmapper.php?guid=" + this.config.guid + "&points=" + this.config.points;
 		request({
 			url: geoURL,
 			method: 'GET',
